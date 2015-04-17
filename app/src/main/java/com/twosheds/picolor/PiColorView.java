@@ -84,18 +84,20 @@ public class PiColorView extends View {
     }
 
     private void pickColor(int x, int y) {
-        circleX = x;
-        circleY = y;
-
         if (bitmap == null) {
             return;
         }
 
         int R = bitmap.getWidth() / 2;
-        int color = bitmap.getPixel(circleX + R - 1, circleY + R - 1);
+        int color = bitmap.getPixel(x + R - 1, y + R - 1);
 
-        if (listener != null) {
-            listener.onColorPicked(color);
+        if (color != 0) {
+            circleX = x;
+            circleY = y;
+
+            if (listener != null) {
+                listener.onColorPicked(color);
+            }
         }
     }
 
@@ -105,10 +107,10 @@ public class PiColorView extends View {
 
         int R = bitmap.getWidth() / 2;
         circlePaint.setColor(bitmap.getPixel(-circleX + R, -circleY + R));
-        canvas.drawCircle(circleX + R + left,  circleY + R + top, pickerRadius + 10, circlePaint);
+        canvas.drawCircle(circleX + R + left,  circleY + R + top, pickerRadius + 5, circlePaint);
 
         circlePaint.setColor(bitmap.getPixel(circleX + R - 1, circleY + R - 1));
-        canvas.drawCircle(circleX + R + left,  circleY + R +top, pickerRadius, circlePaint);
+        canvas.drawCircle(circleX + R + left,  circleY + R +top, pickerRadius - 5, circlePaint);
     }
 
     @Override
@@ -122,7 +124,7 @@ public class PiColorView extends View {
             int newX = (int) (x - (left + R));
             int newY = (int) (y - (top + R));
 
-            if (newX * newX + newY * newY <= R * R) {
+            if (newX * newX + newY * newY < R * R) {
                 pickColor(newX, newY);
                 postInvalidate();
                 return true;
