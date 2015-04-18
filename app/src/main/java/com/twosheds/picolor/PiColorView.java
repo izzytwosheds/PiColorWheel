@@ -5,6 +5,7 @@ import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
+import android.graphics.Point;
 import android.util.AttributeSet;
 import android.view.MotionEvent;
 import android.view.View;
@@ -14,8 +15,7 @@ public class PiColorView extends View {
     private float left;
     private float top;
 
-    private int circleX;
-    private int circleY;
+    private Point pickedPoint;
     private int pickerRadius;
     private Paint circlePaint;
 
@@ -31,13 +31,15 @@ public class PiColorView extends View {
         circlePaint = new Paint();
         circlePaint.setAntiAlias(true);
         circlePaint.setStrokeWidth(10);
+
+        pickedPoint = new Point();
     }
 
     @Override
     public void onSizeChanged(int w, int h, int oldW, int oldH) {
         pickerRadius = Math.min(w, h) / 20;
 
-        int bitmapSize = Math.min(w, h) - 2*pickerRadius;
+        int bitmapSize = Math.min(w, h) - 2 * pickerRadius;
         initBitmap(bitmapSize);
 
         left = (w - bitmapSize) / 2;
@@ -53,8 +55,8 @@ public class PiColorView extends View {
             bitmap = Bitmap.createBitmap(bitmapSize, bitmapSize, Bitmap.Config.ARGB_8888);
 
             int R = bitmapSize / 2;
-            for (int x=-R; x<R; x++) {
-                for (int y=-R; y<R; y++) {
+            for (int x = -R; x < R; x++) {
+                for (int y = -R; y < R; y++) {
                     int radiusSq = x*x + y*y;
                     if (radiusSq <= R*R) {
                         double radius = Math.sqrt(radiusSq);
@@ -80,11 +82,11 @@ public class PiColorView extends View {
                     }
                 }
             }
-            pickColor(0, R);
+            pickColor(R/2, R/2);
         }
     }
 
-    private void pickColor(int x, int y) {
+    void pickColor(int x, int y) {
         if (bitmap == null) {
             return;
         }
@@ -93,8 +95,7 @@ public class PiColorView extends View {
         int color = bitmap.getPixel(x + R - 1, y + R - 1);
 
         if (color != 0) {
-            circleX = x;
-            circleY = y;
+            pickedPoint.set(x, y);
 
             if (listener != null) {
                 listener.onColorPicked(color);
@@ -109,12 +110,12 @@ public class PiColorView extends View {
         int R = bitmap.getWidth() / 2;
 
         circlePaint.setStyle(Paint.Style.FILL);
-        circlePaint.setColor(bitmap.getPixel(circleX + R - 1, circleY + R - 1));
-        canvas.drawCircle(circleX + R + left,  circleY + R + top, pickerRadius, circlePaint);
+        circlePaint.setColor(bitmap.getPixel(pickedPoint.x + R - 1, pickedPoint.y + R - 1));
+        canvas.drawCircle(pickedPoint.x + R + left,  pickedPoint.y + R + top, pickerRadius, circlePaint);
 
         circlePaint.setStyle(Paint.Style.STROKE);
-        circlePaint.setColor(bitmap.getPixel(-circleX + R, -circleY + R));
-        canvas.drawCircle(circleX + R + left,  circleY + R +top, pickerRadius, circlePaint);
+        circlePaint.setColor(bitmap.getPixel(-pickedPoint.x + R, -pickedPoint.y + R));
+        canvas.drawCircle(pickedPoint.x + R + left,  pickedPoint.y + R + top, pickerRadius, circlePaint);
     }
 
     @Override
