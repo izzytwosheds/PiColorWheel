@@ -3,6 +3,7 @@ package com.twosheds.picolor;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
+import android.graphics.Color;
 import android.graphics.Paint;
 import android.util.AttributeSet;
 import android.view.MotionEvent;
@@ -28,8 +29,8 @@ public class PiColorView extends View {
         super(context, attrs);
 
         circlePaint = new Paint();
-        circlePaint.setStyle(Paint.Style.FILL_AND_STROKE);
         circlePaint.setAntiAlias(true);
+        circlePaint.setStrokeWidth(10);
     }
 
     @Override
@@ -106,11 +107,14 @@ public class PiColorView extends View {
         canvas.drawBitmap(bitmap, left, top, null);
 
         int R = bitmap.getWidth() / 2;
-        circlePaint.setColor(bitmap.getPixel(-circleX + R, -circleY + R));
-        canvas.drawCircle(circleX + R + left,  circleY + R + top, pickerRadius + 5, circlePaint);
 
+        circlePaint.setStyle(Paint.Style.FILL);
         circlePaint.setColor(bitmap.getPixel(circleX + R - 1, circleY + R - 1));
-        canvas.drawCircle(circleX + R + left,  circleY + R +top, pickerRadius - 5, circlePaint);
+        canvas.drawCircle(circleX + R + left,  circleY + R + top, pickerRadius, circlePaint);
+
+        circlePaint.setStyle(Paint.Style.STROKE);
+        circlePaint.setColor(bitmap.getPixel(-circleX + R, -circleY + R));
+        canvas.drawCircle(circleX + R + left,  circleY + R +top, pickerRadius, circlePaint);
     }
 
     @Override
@@ -125,6 +129,7 @@ public class PiColorView extends View {
             int newY = (int) (y - (top + R));
 
             if (newX * newX + newY * newY < R * R) {
+                // inside the circle
                 pickColor(newX, newY);
                 postInvalidate();
                 return true;
@@ -132,6 +137,28 @@ public class PiColorView extends View {
         }
 
         return false;
+    }
+
+    private void drawPi(Canvas canvas) {
+        String pi = getContext().getString(R.string.pi);
+
+        float x = left + bitmap.getWidth()/5 + 5;
+        float y = top + 3*bitmap.getHeight()/4 + 15;
+
+        Paint paintPi = new Paint();
+        paintPi.setStyle(Paint.Style.FILL_AND_STROKE);
+        paintPi.setAntiAlias(true);
+        paintPi.setTextSize(bitmap.getHeight());
+
+        //paintPi.setColor(0xFF628318);
+
+        paintPi.setColor(0xFF314159);
+        canvas.drawText(pi, x, y, paintPi);
+
+        paintPi.setStyle(Paint.Style.STROKE);
+        paintPi.setColor(Color.WHITE);
+        paintPi.setStrokeWidth(4);
+        canvas.drawText(pi, x, y, paintPi);
     }
 
 }
